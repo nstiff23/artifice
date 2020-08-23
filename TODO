@@ -1,0 +1,7 @@
+TODO:
+	* Create a makefile for dice.cpp
+	* Make the bot use initiative.py instead of the built-in init tracker
+	* Improve formatting in all messages
+	* Add an option to toggle tagging whoever is next/current in initiative
+	* Translate dice.cpp into Python
+	* Testing
