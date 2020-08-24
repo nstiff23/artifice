@@ -1,6 +1,5 @@
 import os
 import subprocess
-import socket
 
 import discord
 from dotenv import load_dotenv
