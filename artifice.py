@@ -58,7 +58,7 @@ class ArtificeClient(discord.Client):
             '!init next : advances the initiative tracker and tags the next player\n'
             )
 
-    def print_entity(self, entity, current=FALSE):
+    def print_entity(self, entity, current=False):
         out = ""
         if current:
             out += ">"
