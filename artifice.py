@@ -59,51 +59,9 @@ class ArtificeClient(discord.Client):
             '!init next : advances the initiative tracker and tags the next player\n'
             )
 
-    def print_entity(self, entity, current=False):
-        out = ""
-        if current:
-            out += ">"
-        else:
-            out += " "
-
-        roll = entity.roll
-        if roll < 10:
-            out += "0" + str(roll)
-        else:
-            out += str(roll)
-
-        out += " "
-
-        name = entity.name[0:20]
-        out += name
-
-        out += '\n'
-        return out
-
     def print_init(self, channel):
-        out = "```\n"
-        tracker = self.trackers[channel]
-
-        curr, entities = tracker.view()
-        surprise = tracker.surprise
-        lost = tracker.lost
-
-        if len(surprise) > 0:
-            out += "SURPRISE\n==========\n"
-            for i in range(0,len(surprise)):
-                out += self.print_entity(surprise[i])
-        out += "INITIATIVE\n==========\n"
-        for i in range(0,len(entities)):
-            bold = (curr == i)
-            out += self.print_entity(entities[i], current=bold)
-        if len(lost) > 0:
-            out += "LOST\n==========\n"
-            for i in range(0,len(lost)):
-                out += self.print_entity(lost[i])
-
-        out += "```"
-        return out
-    
+        return str(self.trackers[channel])
+            
     def in_init(self, channel):
         return (channel in self.trackers and self.trackers[channel] != None)
 

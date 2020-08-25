@@ -16,6 +16,18 @@ class Initiative:
         def __repr__(self):
             return f'Entity(name = {self.name}, mod = {self.mod}, ' + \
                 f'roll = {self.roll}, id = {self.id})'
+
+        def __str__(self):
+            if self.roll < 10:
+                out += "0" + str(self.roll)
+            else:
+                out += str(self.roll)
+
+            out += " "
+
+            out += self.name[0:20]
+
+
     
     def __init__(self):
         self.entities = []
@@ -24,10 +36,39 @@ class Initiative:
         self.curr = -1
         self.started = False
 
+    def __str__(self):
+        out = "```\n"
+        if len(self.surprise) > 0:
+            out += "SURPRISE\n==========\n"
+            for i in range(0,len(self.surprise)):
+                out += self.print_entity(self.surprise[i])
+        out += "INITIATIVE\n==========\n"
+        for i in range(0,len(self.entities)):
+            bold = (self.curr == i)
+            out += self.print_entity(self.entities[i], current=bold)
+        if len(self.lost) > 0:
+            out += "LOST\n==========\n"
+            for i in range(0,len(self.lost)):
+                out += self.print_entity(self.lost[i])
+
+        out += "```"
+        return out
+
     def _get_names(self): return [e.name for e in self.entities]
     def _get_mods(self): return [e.mod for e in self.entities]
     def _get_rolls(self): return [e.roll for e in self.entities]
     def _get_ids(self): return [e.id for e in self.entities]
+
+    def print_entity(self, entity, current=False):
+        out = ""
+        if current:
+            out += ">"
+        else:
+            out += " "
+
+        out += str(entity)
+        out += '\n'
+        return out
 
     def add(self, name, mod, roll=None, id=None, adv=0, surprise=0): 
         # roll: if number, roll is a manually-specified roll
