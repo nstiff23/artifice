@@ -62,9 +62,9 @@ class Initiative:
         if surprise > 0: self.surprise.append(newE)
         if surprise < 0: self.lost.append(newE)
 
-        self.entities.sort(key=lambda e : (e.roll, e.mod), reverse=True) # sort by roll then mod
-        
         if self.started and roll > self.entities[self.curr].roll: self.curr += 1
+
+        self.entities.sort(key=lambda e : (e.roll, e.mod), reverse=True) # sort by roll then mod
 
     def remove(self, name): 
         idx = -1
