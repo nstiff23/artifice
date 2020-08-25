@@ -1,13 +1,15 @@
-import os
 import subprocess
 
 import discord
-from dotenv import load_dotenv
 
 from initiative import Initiative
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = ""
+
+def fetch_token():
+    tokfile = open("TOKEN.txt")
+    TOKEN = tokfile.read()
+    tokfile.close()
 
 def roll_dice(user_roll):
     user_roll = user_roll.replace(" ","")
@@ -47,13 +49,15 @@ class ArtificeClient(discord.Client):
             '    use adv and dis to roll with advantage or disadvantage, respectively\n'
             '!re : repeat your most recent roll\n'
             '!init : controls the initiative tracker\n'
-            '!init start : start the initiative tracker\n'
+            '!init start (or begin) : start the initiative tracker\n'
             '!init end : clear the initiative tracker\n'
-            '!init add <bonus> : add someone to initiative with a certain bonus\n'
-            '!init remove <name> : removes someone from initiative'
+            '!init add <name> <bonus> <option> : add someone to initiative with a certain bonus\n'
+            '    the optional parameter can be "adv" or "dis" to give them advantage\n'
+            '    or disadvantage on the roll, or a number to specify what they roll\n'
+            '!init remove <name> : removes someone from initiative\n'
+            '!init next : advances the initiative tracker and tags the next player\n'
             )
 
-    @staticmethod
     def print_entity(self, entity, current=FALSE):
         out = ""
         if current:
@@ -75,7 +79,6 @@ class ArtificeClient(discord.Client):
         out += '\n'
         return out
 
-    @staticmethod
     def print_init(self, channel):
         out = "```\n"
         tracker = trackers[channel]
@@ -99,9 +102,64 @@ class ArtificeClient(discord.Client):
 
         out += "```"
     
-    @staticmethod
     def in_init(self, channel):
-        return channel in trackers
+        return (channel in self.trackers and self.trackers[channel] != None)
+
+    def process_init(init_command):
+        if init_command[1] == "start" or init_command[1] == "begin":
+            if self.in_init(message.channel):
+                await message.channel.send("Already in initiative!")
+            else:
+                self.trackers[message.channel] = Initiative()
+                await message.channel.send("Initiative begun!" + 
+                        " Use !init add <bonus> to roll initiative.")
+                self.init_msg[message.channel] = await message.channel.send(
+                        self.print_init(message.channel))
+                await self.init_msg[message.channel].pin()
+
+        elif init_command[1] == "add":
+            if self.in_init(message.channel):
+                adv = 0
+                if init_command[4] == "adv":
+                    adv = 1
+                elif init_command[4] == "dis":
+                    adv = -1
+                
+                if is_number(init_command[4]):
+                    self.trackers[message.channel].add(init_command[2], int(init_command[3]),
+                            roll=int(init_command[4]), id=message.author)
+                else:
+                    self.trackers[message.channel].add(init_command[2], int(init_command[3]),
+                            id=message.author)
+                await self.init_msg[message.channel].edit(
+                        content=self.print_init(message.channel))
+            else:
+                await message.channel.send("Not in initiative")
+
+        elif init_command[1] == "remove":
+            if self.in_init(message.channel):
+                self.trackers[message.channel].remove(init_command[2])
+                await self.init_msg.edit(content=self.print_init(message.channel))
+            else: 
+                await message.channel.send("Not in intiative")
+
+        elif init_command[1] == "end":
+            if self.in_init(message.channel):
+                self.trackers[message.channel] = None
+                await self.init_msg.unpin()
+                await message.channel.send("Initiative ended")
+            else:
+                await message.channel.send("Not in intiative")
+
+        elif init_command[1] == "next":
+            if self.in_init(message.channel):
+                tracker = self.trackers[message.channel]
+                tracker.next()
+                member = tracker.entities[tracker.curr].id
+                mention = member.user.mention
+                await message.channel.send("Up next: " + member.name + " " + mention)
+            else: 
+                await message.channel.send("Not in initiative")
 
     async def on_ready(self):
         print(f'{self.user} has connected to Discord!')
@@ -132,58 +190,7 @@ class ArtificeClient(discord.Client):
 
             elif message.content.split(" ")[0] == "!init":
                 init_command = message.content.split(" ")
-                if init_command[1] == "start" or init_command[1] == "begin":
-                    if self.in_init(message.channel):
-                        await message.channel.send("Already in initiative!")
-                    else:
-                        self.trackers[message.channel] = Initiative()
-                        await message.channel.send("Initiative begun!" + 
-                                " Use !init add <bonus> to roll initiative.")
-                        self.init_msg[message.channel] = await message.channel.send(
-                                self.print_init(message.channel))
-                        await self.init_msg[message.channel].pin()
-
-                elif init_command[1] == "add":
-                    if self.in_init(message.channel):
-                        adv = 0
-                        if init_command[4] == "adv":
-                            adv = 1
-                        elif init_command[4] == "dis":
-                            adv = -1
-                        
-                        if is_number(init_command[4]):
-                            self.trackers[message.channel].add(init_command[2], int(init_command[3]),
-                                    roll=int(init_command[4]), id=message.author)
-                        else:
-                            self.trackers[message.channel].add(init_command[2], int(init_command[3]),
-                                    id=message.author)
-                        await self.init_msg[message.channel].edit(
-                                content=self.print_init(message.channel))
-                    else:
-                        await message.channel.send("Not in initiative")
-
-                elif init_command[1] == "remove":
-                    if self.in_init(message.channel):
-                        self.trackers[message.channel].remove(init_command[2])
-                        await self.init_msg.edit(content=self.print_init(message.channel))
-                    else: 
-                        await message.channel.send("Not in intiative")
-
-                elif init_command[1] == "end":
-                    if self.in_init(message.channel):
-                        self.trackers[message.channel] = None
-                        await self.init_msg.unpin()
-                        await message.channel.send("Initiative ended")
-                    else:
-                        await message.channel.send("Not in intiative")
-
-                elif init_command[1] == "next":
-                    if self.in_init(message.channel):
-                        member = self.trackers[message.channel].next()
-                        mention = member.user.mention
-                        await message.channel.send("Up next: " + member.name + " " + mention)
-                    else: 
-                        await message.channel.send("Not in initiative")
-
+                
+fetch_token()
 client = ArtificeClient()
 client.run(TOKEN)
