@@ -18,6 +18,7 @@ class Initiative:
                 f'roll = {self.roll}, id = {self.id})'
 
         def __str__(self):
+            out = ""
             if self.roll < 10:
                 out += "0" + str(self.roll)
             else:
@@ -25,7 +26,8 @@ class Initiative:
 
             out += " "
 
-            out += self.name[0:20]
+            out += self.name
+            return out
 
 
     
@@ -150,9 +152,9 @@ if __name__ == '__main__':
     tracker.add('Jeff', -3)
     tracker.add('George', -1)
     
-    print(tracker.next())
+    tracker.next()
     print(tracker)
-    print(tracker.next())
+    tracker.next()
     print(tracker)
 
     tracker.add('b1', 0)
@@ -162,9 +164,9 @@ if __name__ == '__main__':
     tracker.add('b5', 0)
     tracker.add('b6', 0)
     
-    print(tracker.next())
+    tracker.next()
     print(tracker)
-    print(tracker.next())
+    tracker.next()
     print(tracker)
     
     """for i in range(10):
