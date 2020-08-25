@@ -77,8 +77,6 @@ class ArtificeClient(discord.Client):
         name = entity.name[0:20]
         out += name
 
-        if current:
-            out += "**"
         out += '\n'
         return out
 
@@ -91,7 +89,7 @@ class ArtificeClient(discord.Client):
         lost = tracker.lost
 
         if len(surprise) > 0:
-            out += "SURPRISE\n========\n"
+            out += "SURPRISE\n==========\n"
             for i in range(0,len(surprise)):
                 out += self.print_entity(surprise[i])
         out += "INITIATIVE\n==========\n"
@@ -99,7 +97,7 @@ class ArtificeClient(discord.Client):
             bold = (curr == i)
             out += self.print_entity(entities[i], current=bold)
         if len(lost) > 0:
-            out += "LOST\n====\n"
+            out += "LOST\n==========\n"
             for i in range(0,len(lost)):
                 out += self.print_entity(lost[i])
 
@@ -124,15 +122,31 @@ class ArtificeClient(discord.Client):
             if self.in_init(channel):
                 adv = 0
                 roll = None
-                if len(init_command) == 5:
+                surprise = 0
+                if len(init_command) >= 5:
                     if init_command[4] == "adv":
                         adv = 1
                     elif init_command[4] == "dis":
                         adv = -1
-                    if is_number(init_command[4]):
+                    elif init_command[4] == "surprise":
+                        surprise = 1
+                    elif init_command[4] == "lost":
+                        surprise = -1
+                    elif is_number(init_command[4]):
                         roll = int(init_command[4])
+                    if len(init_command) == 6:
+                        if init_command[5] == "adv":
+                            adv = 1
+                        elif init_command[5] == "dis":
+                            adv = -1
+                        elif init_command[5] == "surprise":
+                            surprise = 1
+                        elif init_command[5] == "lost":
+                            surprise = -1
+                        elif is_number(init_command[5]):
+                            roll = int(init_command[5])
                 self.trackers[channel].add(init_command[2], int(init_command[3]), 
-                        id=author, roll=roll, adv=adv)
+                        id=author, roll=roll, adv=adv, surprise=surprise)
                 await self.init_msg[channel].edit(content=self.print_init(channel))
             else:
                 await channel.send("Not in initiative")
@@ -157,8 +171,9 @@ class ArtificeClient(discord.Client):
                 tracker = self.trackers[channel]
                 tracker.next()
                 member = tracker.entities[tracker.curr].id
+                name = tracker.entities[tracker.curr].name
                 mention = member.mention
-                await channel.send("Up next: " + member.name + " " + mention)
+                await channel.send("Up next: " + name + " " + mention)
             else: 
                 await channel.send("Not in initiative")
 
