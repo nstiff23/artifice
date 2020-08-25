@@ -85,11 +85,11 @@ class ArtificeClient(discord.Client):
                 surprise = 0
 
                 if is_number(init_command[2]):
-                    print('Invalid argument, use !init add <name> <bonus> <options> to roll')
+                    await channel.send('Invalid argument, use !init add <name> <bonus> <options> to roll')
                     error = True
 
                 if not is_number(init_command[3]):
-                    print('Invalid argument, use !init add <name> <bonus> <options> to roll')
+                    await channel.send('Invalid argument, use !init add <name> <bonus> <options> to roll')
                     error = True
 
                 if len(init_command) >= 5:
@@ -104,7 +104,7 @@ class ArtificeClient(discord.Client):
                     elif is_number(init_command[4]):
                         roll = int(init_command[4])
                     else:
-                        print('Invalid argument, use !init add <name> <bonus> <options> to roll')
+                        await channel.send('Invalid argument, use !init add <name> <bonus> <options> to roll')
                         error = True
                     if len(init_command) == 6:
                         if init_command[5] == "adv":
@@ -118,7 +118,7 @@ class ArtificeClient(discord.Client):
                         elif is_number(init_command[5]):
                             roll = int(init_command[5])
                         else:
-                            print('Invalid argument, use !init add <name> <bonus> <options> to roll')
+                            await channel.send('Invalid argument, use !init add <name> <bonus> <options> to roll')
                             error = True
                 
                 if not error:
@@ -154,6 +154,9 @@ class ArtificeClient(discord.Client):
                 await channel.send("Up next: " + name + " " + mention)
             else: 
                 await channel.send("Not in initiative")
+        
+        else: 
+            await channel.send('Invalid command, call \'!help\' for more information')
 
     async def on_ready(self):
         print(f'{self.user} has connected to Discord!')
