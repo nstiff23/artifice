@@ -2,4 +2,3 @@ TODO:
 	* Add an option to toggle tagging whoever is next/current in initiative
 	* Translate dice.cpp into Python
 	* Testing
-	* Add surprise after initiative has started is known to cause terminal error

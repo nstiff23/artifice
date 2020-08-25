@@ -102,7 +102,7 @@ class Initiative:
         if self.started: surprise = 0
             
         if surprise > 0: self.surprise.append(newE)
-        if surprise < 0: self.lost.append(newE)1
+        if surprise < 0: self.lost.append(newE)
 
         if self.started and roll > self.entities[self.curr].roll: self.curr += 1
 
