@@ -146,9 +146,9 @@ class ArtificeClient(discord.Client):
         elif init_command[1] == "next":
             if self.in_init(channel):
                 tracker = self.trackers[channel]
-                tracker.next()
-                member = tracker.entities[tracker.curr].id
-                name = tracker.entities[tracker.curr].name
+                entity = tracker.next()
+                member = entity.id
+                name = entity.name
                 await self.init_msg[channel].edit(content=self.print_init(channel))
                 mention = member.mention
                 await channel.send("Up next: " + name + " " + mention)
