@@ -125,10 +125,9 @@ class Initiative:
 
         self.curr += 1
         if self.surprise: # go through surprise list here
-            out = self.surprise[self.curr]
-            self.surprise.pop(self.curr)
+            out = self.surprise.pop(self.curr)
             if not self.surprise: self.curr = -1    
-            return out.name        
+            return out        
             
         out = self.entities[self.curr]
         if out in self.lost: 
@@ -137,7 +136,7 @@ class Initiative:
 
         if self.curr == len(self.entities) - 1: self.curr = -1
 
-        return out.name
+        return out
 
     def __repr__(self):
         return f'{self.curr}' + '\n' + '\n'.join([repr(e) for e in self.entities])
