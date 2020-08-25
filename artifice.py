@@ -172,6 +172,7 @@ class ArtificeClient(discord.Client):
                 tracker.next()
                 member = tracker.entities[tracker.curr].id
                 name = tracker.entities[tracker.curr].name
+                await self.init_msg[channel].edit(content=self.print_init(channel))
                 mention = member.mention
                 await channel.send("Up next: " + name + " " + mention)
             else: 
