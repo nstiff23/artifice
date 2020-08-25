@@ -1,7 +1,6 @@
 """
 TODO
 - add error checking
-- import walter and replace roll functions
 """
 import random
 
@@ -103,30 +102,19 @@ class Initiative:
 if __name__ == '__main__':
     tracker = Initiative()
 
-    tracker.add('Tristan', 5)
-    tracker.add('Nathan', 1)
-    tracker.add('Tyler', 1)
-    tracker.add('Jeff', -3)
-    tracker.add('George', -1)
-    
-    print(tracker.next())
-    print(tracker)
-    print(tracker.next())
-    print(tracker)
-
-    tracker.add('b1', 0)
-    tracker.add('b2', 0)
-    tracker.add('b3', 0)
-    tracker.add('b4', 0)
-    tracker.add('b5', 0)
-    tracker.add('b6', 0)
+    tracker.add('Silver', 3)
+    tracker.add('Mike', 3)
+    tracker.add('Kiran', 3)
+    tracker.add('Mecha', 2, surprise=1)
+    tracker.add('slowpoke', 2, roll=2)
     
     print(tracker.next())
     print(tracker)
     print(tracker.next())
     print(tracker)
     
-    """for i in range(10):
-        print(tracker.next())
-        if i == 0: print(tracker) """
+    print(tracker.next())
+    print(tracker)
+    print(tracker.next())
+    print(tracker)
     
