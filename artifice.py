@@ -72,7 +72,7 @@ class ArtificeClient(discord.Client):
             else:
                 self.trackers[channel] = Initiative()
                 await channel.send("Initiative begun!" + 
-                        " Use !init add <name> <bonus> to roll initiative.")
+                        " Use !init add <name> <bonus> <options> to roll initiative.")
                 self.init_msg[channel] = await channel.send(self.print_init(channel))
                 await self.init_msg[channel].pin()
 
