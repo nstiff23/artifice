@@ -1,7 +1,5 @@
 TODO:
-	* Make the bot use initiative.py instead of the built-in init tracker
-	* Update the method for getting a bot token
-	* Improve formatting in all messages
 	* Add an option to toggle tagging whoever is next/current in initiative
 	* Translate dice.cpp into Python
 	* Testing
+	* Add surprise after initiative has started is known to cause terminal error

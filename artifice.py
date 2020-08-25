@@ -59,51 +59,9 @@ class ArtificeClient(discord.Client):
             '!init next : advances the initiative tracker and tags the next player\n'
             )
 
-    def print_entity(self, entity, current=False):
-        out = ""
-        if current:
-            out += ">"
-        else:
-            out += " "
-
-        roll = entity.roll
-        if roll < 10:
-            out += "0" + str(roll)
-        else:
-            out += str(roll)
-
-        out += " "
-
-        name = entity.name[0:20]
-        out += name
-
-        out += '\n'
-        return out
-
     def print_init(self, channel):
-        out = "```\n"
-        tracker = self.trackers[channel]
-
-        curr, entities = tracker.view()
-        surprise = tracker.surprise
-        lost = tracker.lost
-
-        if len(surprise) > 0:
-            out += "SURPRISE\n==========\n"
-            for i in range(0,len(surprise)):
-                out += self.print_entity(surprise[i])
-        out += "INITIATIVE\n==========\n"
-        for i in range(0,len(entities)):
-            bold = (curr == i)
-            out += self.print_entity(entities[i], current=bold)
-        if len(lost) > 0:
-            out += "LOST\n==========\n"
-            for i in range(0,len(lost)):
-                out += self.print_entity(lost[i])
-
-        out += "```"
-        return out
-    
+        return str(self.trackers[channel])
+            
     def in_init(self, channel):
         return (channel in self.trackers and self.trackers[channel] != None)
 
@@ -134,6 +92,8 @@ class ArtificeClient(discord.Client):
                         surprise = -1
                     elif is_number(init_command[4]):
                         roll = int(init_command[4])
+                    else:
+                        print('Invalid argument, use !init add <name> <bonus> <options> to roll')
                     if len(init_command) == 6:
                         if init_command[5] == "adv":
                             adv = 1
@@ -145,6 +105,8 @@ class ArtificeClient(discord.Client):
                             surprise = -1
                         elif is_number(init_command[5]):
                             roll = int(init_command[5])
+                        else:
+                            print('Invalid argument, use !init add <name> <bonus> <options> to roll')
                 self.trackers[channel].add(init_command[2], int(init_command[3]), 
                         id=author, roll=roll, adv=adv, surprise=surprise)
                 await self.init_msg[channel].edit(content=self.print_init(channel))
@@ -172,6 +134,7 @@ class ArtificeClient(discord.Client):
                 tracker.next()
                 member = tracker.entities[tracker.curr].id
                 name = tracker.entities[tracker.curr].name
+                await self.init_msg[channel].edit(content=self.print_init(channel))
                 mention = member.mention
                 await channel.send("Up next: " + name + " " + mention)
             else: 
