@@ -66,6 +66,8 @@ class ArtificeClient(discord.Client):
         return (channel in self.trackers and self.trackers[channel] != None)
 
     async def process_init(self, init_command, channel, author):
+        error = False
+
         if init_command[1] == "start" or init_command[1] == "begin":
             if self.in_init(channel):
                 await channel.send("Already in initiative!")
@@ -81,6 +83,15 @@ class ArtificeClient(discord.Client):
                 adv = 0
                 roll = None
                 surprise = 0
+
+                if is_number(init_command[2]):
+                    print('Invalid argument, use !init add <name> <bonus> <options> to roll')
+                    error = True
+
+                if not is_number(init_command[3]):
+                    print('Invalid argument, use !init add <name> <bonus> <options> to roll')
+                    error = True
+
                 if len(init_command) >= 5:
                     if init_command[4] == "adv":
                         adv = 1
@@ -94,6 +105,7 @@ class ArtificeClient(discord.Client):
                         roll = int(init_command[4])
                     else:
                         print('Invalid argument, use !init add <name> <bonus> <options> to roll')
+                        error = True
                     if len(init_command) == 6:
                         if init_command[5] == "adv":
                             adv = 1
@@ -107,9 +119,12 @@ class ArtificeClient(discord.Client):
                             roll = int(init_command[5])
                         else:
                             print('Invalid argument, use !init add <name> <bonus> <options> to roll')
-                self.trackers[channel].add(init_command[2], int(init_command[3]), 
-                        id=author, roll=roll, adv=adv, surprise=surprise)
-                await self.init_msg[channel].edit(content=self.print_init(channel))
+                            error = True
+                
+                if not error:
+                    self.trackers[channel].add(init_command[2], int(init_command[3]), 
+                            id=author, roll=roll, adv=adv, surprise=surprise)
+                    await self.init_msg[channel].edit(content=self.print_init(channel))
             else:
                 await channel.send("Not in initiative")
 
