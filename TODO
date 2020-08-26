@@ -1,4 +1,5 @@
 TODO:
 	* Add an option to toggle tagging whoever is next/current in initiative
 	* Translate dice.cpp into Python
+	* Print every individual die roll in output
 	* Testing
