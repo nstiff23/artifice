@@ -13,7 +13,7 @@ class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.begin = 0
-        self.end = len(tokens) - 1
+        self.end = len(tokens)
     
     # checks the current token
     def peek(self):
@@ -39,11 +39,11 @@ class Parser:
         if curr == "ADD":
             self.consume()
             e2 = self.parse_add_sub()
-            return expr.Add(e2, e)
+            return expr.Add(e, e2)
         if curr == "SUB":
             self.consume()
             e2 = self.parse_add_sub()
-            return expr.Sub(e2, e)
+            return expr.Sub(e, e2)
         
         return e
 
@@ -55,11 +55,11 @@ class Parser:
         if curr == "MUL":
             self.consume()
             e2 = self.parse_mul_div()
-            return expr.Mul(e2, e)
+            return expr.Mul(e, e2)
         if curr == "DIV":
             self.consume()
             e2 = self.parse_mul_div()
-            return expr.Div(e2, e)
+            return expr.Div(e, e2)
         
         return e
 
@@ -73,15 +73,16 @@ class Parser:
             if self.peek()[0] == "LPR":
                 self.consume()
                 return p
+            print("error mismatched paren")
         
         if curr == "NUM":
-            v1 = self.peek()[1]
+            v1 = int(self.peek()[1])
             self.consume()
 
-            if self.peek() == "DIE":
+            if self.peek()[0] == "DIE":
                 self.consume()
-                if self.peek() == "NUM":
-                    v2 = self.peek()[1]
+                if self.peek()[0] == "NUM":
+                    v2 = int(self.peek()[1])
                     self.consume()
                     return expr.Roll(v1, v2)
             else:
