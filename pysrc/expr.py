@@ -1,5 +1,6 @@
 from random import randint
 
+# parent class for all expressions. should not be used.
 class Expr: 
     def eval(self):
         return 0
@@ -7,6 +8,7 @@ class Expr:
     def __str__(self):
         return ""
 
+# a number
 class Num(Expr):
     def __init__(self, val):
         self.val = val
@@ -17,6 +19,7 @@ class Num(Expr):
     def __str__(self):
         return str(self.val)
 
+# a die roll expression, representing a pool of dice with the same number of sides
 class Roll(Expr):
     # TODO add highest implementation
     def __init__(self, num, die, highest=0):
@@ -34,6 +37,7 @@ class Roll(Expr):
         # return formatted
         return f"{sum(self.results)}: {[i for i in self.results]}"
 
+# parent class for all binary operators (add, sub, mul, div). should not be used.
 class BinExpr(Expr):
     # Binary expression
     def __init__(self, expr1, expr2):
@@ -47,6 +51,7 @@ class BinExpr(Expr):
     def __str__(self):
         return ", ".join([str(self.expr1), str(self.expr2)])
 
+# multiplies the result of two expressions
 class Mul(BinExpr):
     def __init__(self, expr1, expr2):
         super().__init__(expr1, expr2)
@@ -57,6 +62,7 @@ class Mul(BinExpr):
     def __str__(self):
         return f"{self.expr1}*{self.expr2}"
 
+# divides the result of two expressions
 class Div(BinExpr):
     def __init__(self, expr1, expr2):
         super().__init__(expr1, expr2)
@@ -67,6 +73,7 @@ class Div(BinExpr):
     def __str__(self):
         return f"{self.expr1}/{self.expr2}"
 
+# adds the result of two expressions
 class Add(BinExpr):
     def __init__(self, expr1, expr2):
         super().__init__(expr1, expr2)
@@ -77,6 +84,7 @@ class Add(BinExpr):
     def __str__(self):
         return f"{self.expr1}+{self.expr2}"
 
+# subtracts the result of two expressions
 class Sub(BinExpr):
     def __init__(self, expr1, expr2):
         super().__init__(expr1, expr2)

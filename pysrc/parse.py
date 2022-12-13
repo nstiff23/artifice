@@ -15,18 +15,23 @@ class Parser:
         self.begin = 0
         self.end = len(tokens) - 1
     
+    # checks the current token
     def peek(self):
         if self.begin == self.end:
             return "NUL"
         return self.tokens[self.begin]
 
+    # removes the current token from the stack
     def consume(self):
         if self.begin != self.end:
             self.begin += 1
 
+    # recursively parses all the tokens according to the CFG rules at the top of the file
+    # returns an Expr tree which can evaluate to a number
     def parse(self) -> expr.Expr:
         return self.parse_add_sub()
     
+    # parses an add or subtract token
     def parse_add_sub(self) -> expr.Expr:
         e = self.parse_mul_div()
 
@@ -42,6 +47,7 @@ class Parser:
         
         return e
 
+    # parses a multiply or divide token
     def parse_mul_div(self) -> expr.Expr:
         e = self.parse_base()
 
@@ -57,6 +63,7 @@ class Parser:
         
         return e
 
+    # parses a number, die roll, or parenthetical expression
     def parse_base(self) -> expr.Expr:   
         curr = self.peek()[0]
 
@@ -80,5 +87,6 @@ class Parser:
             else:
                 return expr.Num(v1)
 
+    # parses the token list and evaluates the resulting expression tree
     def eval(self):
         return self.parse().eval()
