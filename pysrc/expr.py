@@ -1,4 +1,5 @@
 from random import randint
+from math import floor
 
 # parent class for all expressions. should not be used.
 class Expr: 
@@ -74,7 +75,7 @@ class Div(BinExpr):
         super().__init__(expr1, expr2)
 
     def eval(self):
-        return self.expr1.eval() / self.expr2.eval()
+        return floor(self.expr1.eval() / self.expr2.eval())
     
     def __str__(self):
         return f"{self.expr1} / {self.expr2}"
