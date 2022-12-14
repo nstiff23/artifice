@@ -27,22 +27,26 @@ class Roll(Expr):
         self.num = num
         self.die = die
         self.highest = highest
+        if self.highest == 0:
+            self.highest = self.die
         self.results = []
+        self.best = []
         self.rolled = False
     
     def eval(self):
         if not self.rolled:
-            self.results = [randint(1, self.die) for _ in range(self.num)]
+            self.results = sorted([randint(1, self.die) for _ in range(self.num)], reverse=True)
+            self.best = self.results[:self.highest]
             self.rolled = True
-        # self.best = sorted(self.results)[self.highest:]
-        return sum(self.results)
+        return sum(self.best)
 
     def __str__(self):
         # formatted = map(lambda x : f"**{x}**" if x in self.best else str(x), self.results)
         # return formatted
         # needs to eval once before it can print
         self.eval()
-        return f"{sum(self.results)}: {[i for i in self.results]}"
+        unused = self.results[self.highest:]
+        return f"{sum(self.best)}: {[f'*{i}*' for i in self.best] + [i for i in unused]}"
 
 # parent class for all binary operators (add, sub, mul, div). should not be used.
 class BinExpr(Expr):

@@ -84,6 +84,11 @@ class Parser:
                 if self.peek()[0] == "NUM":
                     v2 = int(self.peek()[1])
                     self.consume()
+                    if self.peek()[0] == "TOP":
+                        self.consume()
+                        v3 = int(self.peek()[1])
+                        self.consume()
+                        return expr.Roll(v1, v2, highest=v3)
                     return expr.Roll(v1, v2)
             else:
                 return expr.Num(v1)

@@ -7,10 +7,10 @@ tokenizer = re.Scanner([
     (r"\*",      lambda tokenizer, token : ("MUL", token)), # multiply
     (r"\+",      lambda tokenizer, token : ("ADD", token)), # add
     (r"\-",      lambda tokenizer, token : ("SUB", token)), # subtract
-    (r"/",      lambda tokenizer, token : ("DIV", token)), # divide
+    (r"/",       lambda tokenizer, token : ("DIV", token)), # divide
     (r"\(",      lambda tokenizer, token : ("RPR", token)), # right paren
     (r"\)",      lambda tokenizer, token : ("LPR", token)), # left paren
-    # (r"h",                   lambda tokenizer, token : ("TOP", token)),
+    (r"h",       lambda tokenizer, token : ("TOP", token)), # modifies the die roll to only add the highest N results
     (r"\s+", None), # None == skip token.
 ])
 
@@ -46,3 +46,10 @@ if __name__ == '__main__':
     results, remainder = tokenizer.scan("12 * 3")
     parser = parse.Parser(results)
     print(parser.eval())
+
+    print("2 * 4d6h3 + 10")
+    results, remainder = tokenizer.scan("2 * 4d6h3 + 10")
+    parser = parse.Parser(results)
+    expr = parser.parse()
+    print(expr)
+    print(expr.eval())
