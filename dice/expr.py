@@ -28,7 +28,7 @@ class Roll(Expr):
         self.die = die
         self.highest = highest
         if self.highest == 0:
-            self.highest = self.die
+            self.highest = self.num
         self.results = []
         self.best = []
         self.rolled = False
@@ -46,7 +46,11 @@ class Roll(Expr):
         # needs to eval once before it can print
         self.eval()
         unused = self.results[self.highest:]
-        return f"{sum(self.best)}: {[f'*{i}*' for i in self.best] + [i for i in unused]}"
+        result = f"{self.num}d{self.die}{'h'+str(self.highest) if self.highest != self.num else ''} "
+        rolls_list = [f"{i}" for i in self.best] + [f"*{i}*" for i in unused]
+        format_list = ", ".join(rolls_list)
+        result += f"({format_list})"
+        return result
 
 # parent class for all binary operators (add, sub, mul, div). should not be used.
 class BinExpr(Expr):
