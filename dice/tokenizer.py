@@ -14,7 +14,7 @@ tokenizer = re.Scanner([
 ])
 
 def tokenize(str):
-    tokenizer.scan(str)
+    return tokenizer.scan(str)
 
 # test code
 if __name__ == '__main__':
