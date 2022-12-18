@@ -87,9 +87,10 @@ class Initiative:
                 if roll == 20: 
                     if surprise < 0: surprise = 0 #lost + nat 20 = cancel
                     else: surprise = 1
-                if roll == 1:
-                    if surprise > 0: surprise = 0 #surprise + nat 1 = cancel
-                    else: surprise = -1
+                # bogus rule
+                #if roll == 1:
+                #    if surprise > 0: surprise = 0 #surprise + nat 1 = cancel
+                #    else: surprise = -1
 
             roll += mod #add mod to roll after checking natural surprise/loss
 
