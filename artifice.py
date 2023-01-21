@@ -177,6 +177,23 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+@bot.command(name="join", brief="Join the user's current voice channel")
+async def join(ctx):
+    author = ctx.message.author
+    if not author.voice:
+        await ctx.send(author.display_name + " is not in a voice channel!")
+        return
+    channel = author.voice.channel
+    await channel.connect()
+
+@bot.command(name="leave", brief="Leave the current voice channel")
+async def leave(ctx):
+    voice = ctx.message.guild.voice_client
+    if voice and voice.is_connected():
+        await voice.disconnect()
+    else:
+        await ctx.send("Not in a voice channel")
+
 @bot.command(name="roll", brief="Rolls some dice", help=roll_help)
 async def roll(ctx, *args):
     roll = ""
