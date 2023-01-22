@@ -3,6 +3,8 @@ import subprocess
 import discord
 from discord.ext import commands, tasks
 
+import youtube_dl
+
 from initiative import Initiative
 from dice import tokenize
 from dice import Parser
@@ -14,6 +16,26 @@ def fetch_token():
     tok = tokfile.read()
     tokfile.close()
     return tok
+
+ytdl_format_options = {
+    'format': 'bestaudio/best',
+    'restrictfilenames': True,
+    'noplaylist': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'quiet': True,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
+}
+
+ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+
+async def download(url, loop):
+    data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=True))
+    filename = ytdl.prepare_filename(data)
+    return filename
 
 def roll_dice(user_roll):
     user_roll = user_roll.replace(" ","")
@@ -191,6 +213,17 @@ async def leave(ctx):
     voice = ctx.message.guild.voice_client
     if voice and voice.is_connected():
         await voice.disconnect()
+    else:
+        await ctx.send("Not in a voice channel")
+
+@bot.command(name="play", brief="Play a song from a YouTube URL")
+async def play(ctx, url):
+    voice = ctx.message.guild.voice_client
+    if voice and voice.is_connected():
+        async with ctx.typing():
+            filename = await download(url, loop=bot.loop)
+            voice.play(discord.FFmpegPCMAudio(executable="ffmpeg", source=filename))
+            await ctx.send("Now playing")
     else:
         await ctx.send("Not in a voice channel")
 

@@ -1,4 +1,6 @@
 TODO:
-	* Rewrite the Discord bot for the new API!
-	* Add an option to toggle tagging whoever is next/current in initiative
-	* Testing
+	* FFmpeg might not terminate correctly when the bot leaves during a song
+	* Need to stream instead of downloading
+	* Need to implement queueing
+	* Need to automatically queue up playlists
+	* Pause, resume and stop commands
