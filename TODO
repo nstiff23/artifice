@@ -4,3 +4,6 @@ TODO:
 	* Need to implement queueing
 	* Need to automatically queue up playlists
 	* Pause, resume and stop commands
+	* Skip command, list command
+	* Automatically leave the channel after a cooldown or when everyone leaves
+	* Automatically join when someone uses !play
