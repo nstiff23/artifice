@@ -39,20 +39,6 @@ async def download(url, loop):
     filename = ytdl.prepare_filename(data)
     return filename
 
-def roll_dice(user_roll):
-    user_roll = user_roll.replace(" ","")
-    if user_roll[:3] == "adv":
-        res1 = subprocess.run(["./dice", user_roll[3:]], capture_output=True, text=True)
-        res2 = subprocess.run(["./dice", user_roll[3:]], capture_output=True, text=True)
-        return max(int(res1.stdout.strip()), int(res2.stdout.strip()))
-    elif user_roll[:3] == "dis":
-        res1 = subprocess.run(["./dice", user_roll[3:]], capture_output=True, text=True)
-        res2 = subprocess.run(["./dice", user_roll[3:]], capture_output=True, text=True)
-        return min(int(res1.stdout.strip()), int(res2.stdout.strip()))
-    else:
-        res = subprocess.run(["./dice", user_roll], capture_output=True, text=True) 
-        return int(res.stdout.strip())
-
 def is_number(string):
     try:
         int(string)
