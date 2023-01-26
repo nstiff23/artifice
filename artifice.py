@@ -1,13 +1,13 @@
 import asyncio
 from queue import Queue
-import subprocess
 
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 import youtube_dl
 
 from initiative import Initiative
+from song_queue import SongQueue
 from dice import tokenize
 from dice import Parser
 
@@ -185,9 +185,7 @@ TOKEN = fetch_token()
 intents = discord.Intents.default()
 intents.message_content = True
 
-song_queue = Queue()
-song_queue_task = None
-song_queue_playing = False
+song_queue = None
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -208,26 +206,16 @@ async def leave(ctx):
     else:
         await ctx.send("Not in a voice channel")
 
-async def play_song_queue(voice):
-    song_queue_playing = True
-    while not song_queue.empty():
-        filename = song_queue.get()
-        await voice.play(discord.FFmpegPCMAudio(executable="ffmpeg", source=filename))
-    song_queue_playing = False
-
 @bot.command(name="play", brief="Play a song from a YouTube URL")
 async def play(ctx, url):
+    global song_queue
     voice = ctx.message.guild.voice_client
     if voice and voice.is_connected():
         async with ctx.typing():
-            filename = await download(url, loop=bot.loop)
-            if not song_queue_playing:
-                song_queue.put(filename)
-                song_queue_task = asyncio.create_task(play_song_queue(voice))
-                await ctx.send("Now playing")
-            else:
-                song_queue.put(filename)
-                await ctx.send("Added to queue")
+            if song_queue is None:
+                song_queue = SongQueue(ytdl_format_options, voice, bot.loop)
+            title = await song_queue.add(url, ctx.channel)
+            await ctx.send("{} added to queue".format(title))
     else:
         await ctx.send("Not in a voice channel")
 
