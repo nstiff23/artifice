@@ -219,6 +219,12 @@ async def play(ctx, url):
     else:
         await ctx.send("Not in a voice channel")
 
+@bot.command(name="list", brief="List songs in the queue")
+async def list(ctx):
+    global song_queue
+    song_list = str(song_queue)
+    await ctx.send(song_list)
+
 @bot.command(name="roll", brief="Rolls some dice", help=roll_help)
 async def roll(ctx, *args):
     roll = ""

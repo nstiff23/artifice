@@ -24,9 +24,11 @@ class SongQueue:
         self.downloading = False
 
     def __str__(self):
-        dls = ["[{index}] {title}".format(index=i, title=song.title) for i, song in self.__dl_queue]
-        playing = ["[{index}] {title}".format(index=i, title=song.title) for i, song in self.__play_queue]
-        out = "**Downloading**" + "\n    ".join(dls) + "\n**Now Playing**" + "\n    ".join(playing)
+        dls_list = ["    [{index}] {title}".format(index=i+1, title=song.title) for i, song in enumerate(self.__dl_queue)]
+        playing_list = ["    [{index}] {title}".format(index=i+1, title=song.title) for i, song in enumerate(self.__play_queue)]
+        dls = "**Downloading**" + "\n```" + "\n".join(dls_list) + "```\n" if len(self.__dl_queue) > 0 else ""
+        playing = "**Now Playing**" + "\n```" + "\n".join(playing_list) + "```" if len(self.__play_queue) > 0 else ""
+        out = dls + playing
         return out
 
     async def add(self, url, channel):
@@ -48,13 +50,14 @@ class SongQueue:
         print("download coroutine started. queue length: {}".format(len(self.__dl_queue)))
         while len(self.__dl_queue) > 0:
             # get song from download queue
-            song = self.__dl_queue.popleft()
+            song = self.__dl_queue[0]
             # download file -- how to manage concurrent downloads? need to make this a coroutine
             # and manage it with a task group
             print("downloading {} : {}".format(song.title, song.url))
             # song url MUST be in a list or it downloads a bunch of random junk instead
             await self.__loop.run_in_executor(None, lambda: self.__ytdl.download([song.url]))
             print("finished downloading! remaining in queue: {}".format(len(self.__dl_queue)))
+            self.__dl_queue.popleft()
             # move song to play queue
             self.__play_queue.append(song)
             # start play coroutine
@@ -68,11 +71,12 @@ class SongQueue:
         self.playing = True
         print("player coroutine started. queue length: {}".format(len(self.__play_queue)))
         while len(self.__play_queue) > 0:
-            song = self.__play_queue.popleft()
+            song = self.__play_queue[0]
             print("playing {}".format(song.title))
             self.__voice.play(discord.FFmpegPCMAudio(executable="ffmpeg", source=song.filename))
             while self.__voice.is_playing():
                 await asyncio.sleep(0.5)
             print("finished playing. remaining in queue: {}".format(len(self.__play_queue)))
+            self.__play_queue.popleft()
         self.playing = False
         self.__play_task = None
