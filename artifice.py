@@ -200,8 +200,12 @@ async def join(ctx):
 
 @bot.command(name="leave", brief="Leave the current voice channel")
 async def leave(ctx):
+    global song_queue
     voice = ctx.message.guild.voice_client
     if voice and voice.is_connected():
+        if song_queue is not None:
+            song_queue.clear_queue()
+        voice.stop()
         await voice.disconnect()
     else:
         await ctx.send("Not in a voice channel")
@@ -210,14 +214,53 @@ async def leave(ctx):
 async def play(ctx, url):
     global song_queue
     voice = ctx.message.guild.voice_client
+    if not voice or not voice.is_connected():
+        await join(ctx)
+        voice = ctx.message.guild.voice_client
     if voice and voice.is_connected():
         async with ctx.typing():
             if song_queue is None:
                 song_queue = SongQueue(ytdl_format_options, voice, bot.loop)
-            title = await song_queue.add(url, ctx.channel)
+            title = await song_queue.add(url)
             await ctx.send("{} added to queue".format(title))
+
+#clear -- clear queue except currently playing
+#remove -- remove specified index from play queue
+#cancel -- remove specified index from download queue
+
+@bot.command(name="skip", brief="Skip the currently playing song")
+async def skip(ctx):
+    voice = ctx.message.guild.voice_client
+    if voice.is_playing() or voice.is_paused():
+        voice.stop()
     else:
-        await ctx.send("Not in a voice channel")
+        await ctx.send("Nothing is currently playing")
+
+@bot.command(name="stop", brief="Clear the queue and stop playing")
+async def stop(ctx):
+    global song_queue
+    voice = ctx.message.guild.voice_client
+    if voice.is_playing() or voice.is_paused():
+        song_queue.clear_queue()
+        voice.stop()
+    else:
+        await ctx.send("Nothing is currently playing")
+
+@bot.command(name="pause", brief="Pause the currently playing song")
+async def pause(ctx):
+    voice = ctx.message.guild.voice_client
+    if voice.is_playing():
+        voice.pause()
+    else:
+        await ctx.send("Not currently playing")
+
+@bot.command(name="resume", brief="Resume the currently paused song")
+async def resume(ctx):
+    voice = ctx.message.guild.voice_client
+    if voice.is_paused():
+        voice.resume()
+    else:
+        await ctx.send("Not currently paused")
 
 @bot.command(name="list", brief="List songs in the queue")
 async def list(ctx):
