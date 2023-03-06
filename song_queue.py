@@ -33,9 +33,7 @@ class SongQueue:
         out = dls + playing
         return out
 
-    async def add(self, url):
-        # get song metadata
-        data = await self.__loop.run_in_executor(None, lambda: self.__ytdl.extract_info(url, download=False))
+    def __download_song(self, data, url):
         # get song filename
         filename = self.__ytdl.prepare_filename(data)
         # add to queue
@@ -45,14 +43,27 @@ class SongQueue:
         if not self.downloading:
             print("starting download queue coroutine...")
             self.__dl_task = asyncio.create_task(self.__dl_queue_coro())
+            self.downloading = True
         return song.title
+
+    async def add(self, url):
+        # get song metadata
+        titles = []
+        data = await self.__loop.run_in_executor(None, lambda: self.__ytdl.extract_info(url, download=False))
+        if "playlist_count" in data.keys():
+            for song_data in data["entries"]:
+                title = self.__download_song(song_data, url)
+                titles.append(title)
+        else:
+            title = self.__download_song(data, url)
+            titles.append(title)
+        return titles
 
     def clear_queue(self):
         self.__dl_queue.clear()
         self.__play_queue.clear()
 
     async def __dl_queue_coro(self):
-        self.downloading = True
         print("download coroutine started. queue length: {}".format(len(self.__dl_queue)))
         while len(self.__dl_queue) > 0:
             # get song from download queue

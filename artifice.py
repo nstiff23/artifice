@@ -22,7 +22,7 @@ def fetch_token():
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'restrictfilenames': True,
-    'noplaylist': True,
+    'noplaylist': False,
     'nocheckcertificate': True,
     'ignoreerrors': False,
     'logtostderr': False,
@@ -222,8 +222,9 @@ async def play(ctx, url):
         async with ctx.typing():
             if song_queue is None:
                 song_queue = SongQueue(ytdl_format_options, voice, bot.loop)
-            title = await song_queue.add(url)
-            await ctx.send("{} added to queue".format(title))
+            titles = await song_queue.add(url)
+            for title in titles:
+                await ctx.send("{} added to queue".format(title))
 
 #clear -- clear queue except currently playing
 #remove -- remove specified index from play queue
