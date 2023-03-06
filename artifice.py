@@ -1,11 +1,13 @@
-import subprocess
+import asyncio
+from queue import Queue
 
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 
-import youtube_dl
+import yt_dlp
 
 from initiative import Initiative
+from song_queue import SongQueue
 from dice import tokenize
 from dice import Parser
 
@@ -20,36 +22,23 @@ def fetch_token():
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'restrictfilenames': True,
-    'noplaylist': True,
+    'noplaylist': False,
     'nocheckcertificate': True,
     'ignoreerrors': False,
     'logtostderr': False,
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
+    'source_address': '0.0.0.0', # bind to ipv4 since ipv6 addresses cause issues sometimes
+    'outtmpl': 'music/%(id)s_%(title)s.%(ext)s',
 }
 
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 async def download(url, loop):
     data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=True))
     filename = ytdl.prepare_filename(data)
     return filename
-
-def roll_dice(user_roll):
-    user_roll = user_roll.replace(" ","")
-    if user_roll[:3] == "adv":
-        res1 = subprocess.run(["./dice", user_roll[3:]], capture_output=True, text=True)
-        res2 = subprocess.run(["./dice", user_roll[3:]], capture_output=True, text=True)
-        return max(int(res1.stdout.strip()), int(res2.stdout.strip()))
-    elif user_roll[:3] == "dis":
-        res1 = subprocess.run(["./dice", user_roll[3:]], capture_output=True, text=True)
-        res2 = subprocess.run(["./dice", user_roll[3:]], capture_output=True, text=True)
-        return min(int(res1.stdout.strip()), int(res2.stdout.strip()))
-    else:
-        res = subprocess.run(["./dice", user_roll], capture_output=True, text=True) 
-        return int(res.stdout.strip())
 
 def is_number(string):
     try:
@@ -197,6 +186,8 @@ TOKEN = fetch_token()
 intents = discord.Intents.default()
 intents.message_content = True
 
+song_queue = None
+
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.command(name="join", brief="Join the user's current voice channel")
@@ -210,22 +201,74 @@ async def join(ctx):
 
 @bot.command(name="leave", brief="Leave the current voice channel")
 async def leave(ctx):
+    global song_queue
     voice = ctx.message.guild.voice_client
     if voice and voice.is_connected():
+        if song_queue is not None:
+            song_queue.clear_queue()
+        voice.stop()
         await voice.disconnect()
     else:
         await ctx.send("Not in a voice channel")
 
 @bot.command(name="play", brief="Play a song from a YouTube URL")
 async def play(ctx, url):
+    global song_queue
     voice = ctx.message.guild.voice_client
+    if not voice or not voice.is_connected():
+        await join(ctx)
+        voice = ctx.message.guild.voice_client
     if voice and voice.is_connected():
         async with ctx.typing():
-            filename = await download(url, loop=bot.loop)
-            voice.play(discord.FFmpegPCMAudio(executable="ffmpeg", source=filename))
-            await ctx.send("Now playing")
+            if song_queue is None:
+                song_queue = SongQueue(ytdl_format_options, voice, bot.loop)
+            titles = await song_queue.add(url)
+            for title in titles:
+                await ctx.send("{} added to queue".format(title))
+
+#clear -- clear queue except currently playing
+#remove -- remove specified index from play queue
+#cancel -- remove specified index from download queue
+
+@bot.command(name="skip", brief="Skip the currently playing song")
+async def skip(ctx):
+    voice = ctx.message.guild.voice_client
+    if voice.is_playing() or voice.is_paused():
+        voice.stop()
     else:
-        await ctx.send("Not in a voice channel")
+        await ctx.send("Nothing is currently playing")
+
+@bot.command(name="stop", brief="Clear the queue and stop playing")
+async def stop(ctx):
+    global song_queue
+    voice = ctx.message.guild.voice_client
+    if voice.is_playing() or voice.is_paused():
+        song_queue.clear_queue()
+        voice.stop()
+    else:
+        await ctx.send("Nothing is currently playing")
+
+@bot.command(name="pause", brief="Pause the currently playing song")
+async def pause(ctx):
+    voice = ctx.message.guild.voice_client
+    if voice.is_playing():
+        voice.pause()
+    else:
+        await ctx.send("Not currently playing")
+
+@bot.command(name="resume", brief="Resume the currently paused song")
+async def resume(ctx):
+    voice = ctx.message.guild.voice_client
+    if voice.is_paused():
+        voice.resume()
+    else:
+        await ctx.send("Not currently paused")
+
+@bot.command(name="list", brief="List songs in the queue")
+async def list(ctx):
+    global song_queue
+    song_list = str(song_queue)
+    await ctx.send(song_list)
 
 @bot.command(name="roll", brief="Rolls some dice", help=roll_help)
 async def roll(ctx, *args):

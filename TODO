@@ -1,6 +1,5 @@
 TODO:
 	* FFmpeg might not terminate correctly when the bot leaves during a song
 	* Need to stream instead of downloading
-	* Need to implement queueing
-	* Need to automatically queue up playlists
-	* Pause, resume and stop commands
+	* Automatically leave the channel after a cooldown or when everyone leaves
+If I were smart maybe this would be in GitHub issues
