@@ -2,7 +2,7 @@ import asyncio
 from collections import deque
 
 import discord
-import youtube_dl
+import yt_dlp
 
 class SongQueue:
     class Song:
@@ -13,7 +13,7 @@ class SongQueue:
             self.length = length
 
     def __init__(self, ytdl_format_options, voice_client, loop):
-        self.__ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+        self.__ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
         self.__voice = voice_client
         self.__play_queue = deque()
         self.__dl_queue = deque()

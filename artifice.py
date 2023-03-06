@@ -4,7 +4,7 @@ from queue import Queue
 import discord
 from discord.ext import commands
 
-import youtube_dl
+import yt_dlp
 
 from initiative import Initiative
 from song_queue import SongQueue
@@ -32,7 +32,7 @@ ytdl_format_options = {
     'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
 }
 
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 async def download(url, loop):
     data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=True))
