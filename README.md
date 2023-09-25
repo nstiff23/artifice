@@ -5,7 +5,7 @@ Artifice is an initiative tracker Discord bot for Dungeons and Dragons 5th editi
 
 The initiative tracker backend and interface with the Discord API are Python; dice roller is a parser implementing a CFG in C++. All code is (mostly) tested. Let us know about any bugs!
 
-To set up the bot, run `make` to build the dice roller, put your Discord bot token in a file called `TOKEN.txt`, and then run `python3 artifice.py` -- once Artifice is running, you'll be able to add it to your server using Discord's tools. Note: this code has only been tested on Linux machines.
+The bot requires `ffmpeg` and the Python libraries `discord`, `ytp-dl` and `PyNaCl`. To set up the bot, put your Discord bot token in a file called `TOKEN.txt`, and then run `python3 artifice.py` -- once Artifice is running, you'll be able to add it to your server using Discord's tools. Note: this code has only been tested on Linux machines.
 
 # Commands:
 - `!help` : displays this message
