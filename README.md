@@ -3,8 +3,6 @@
  
 Artifice is an initiative tracker Discord bot for Dungeons and Dragons 5th edition. The bot includes a dice roller, which can run complex arithmetic to handle different types of dice, modifiers, resistances, different damage types, buffs and debuffs all with a minimum of hassle. Artifice also has a built-in initiative tracker, which can make initiative rolls with advantage or disadvantage, insert a character at a predetermined spot in the initiative, and give characters a surprise round or a delayed entry. We've tried our best to cover any concievable situation and edge case that the D&D 5th edition rules allow for.
 
-The initiative tracker backend and interface with the Discord API are Python; dice roller is a parser implementing a CFG in C++. All code is (mostly) tested. Let us know about any bugs!
-
 The bot requires `ffmpeg` and the Python libraries `discord`, `ytp-dl` and `PyNaCl`. To set up the bot, put your Discord bot token in a file called `TOKEN.txt`, and then run `python3 artifice.py` -- once Artifice is running, you'll be able to add it to your server using Discord's tools. Note: this code has only been tested on Linux machines.
 
 # Commands:
